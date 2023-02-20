@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { metalendLiquidityAssessorAddress } from "../../lib/constants.js";
-import { providerReadonly } from "../ethersManager.js";
+import { provider } from "../ethersManager.js";
 
 /**
  * @notice this is a read only liquidity assessor which serves to calculate liquidity of borrower and determine
@@ -93,7 +93,7 @@ class LiquidityAssessor {
     this.contractReadonly = new ethers.Contract(
       metalendLiquidityAssessorAddress,
       abiReadonly,
-      providerReadonly
+      provider
     );
   }
 
@@ -105,7 +105,7 @@ class LiquidityAssessor {
    * @param {BigNumber} repayAmount
    * @param {BigNumber[]} tokenIds
    * @param {appraisalStruct} appraisal
-   * @returns true/false if liquidation is allowed to happen or not
+   * @returns true/false if liquidation is allowed to happen or not (potential error code)
    */
   async isLiquidationAllowed(
     borrowMarket,

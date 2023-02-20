@@ -3,7 +3,7 @@ import {
   metalendCollateralAxieAddress,
   metalendCollateralAxieLandAddress,
 } from "../../lib/constants.js";
-import { providerReadonly } from "../ethersManager.js";
+import { provider } from "../ethersManager.js";
 
 /**
  * @notice this class serves as a read only collateral contract - Axie and AxieLand
@@ -38,16 +38,17 @@ class CollateralErc721 {
     this.contractReadonly = new ethers.Contract(
       address,
       abiReadonly,
-      providerReadonly
+      provider
     );
   }
 
   /**
    * readonly function of all token ids by token kind for given address
+   * @param address of the borrower
    * @returns BigNumber array for account token ids
    */
-  async getAccountTokens() {
-    return await this.contractReadonly.getAccountTokens();
+  async getAccountTokens(address) {
+    return await this.contractReadonly.getAccountTokens(address);
   }
 }
 

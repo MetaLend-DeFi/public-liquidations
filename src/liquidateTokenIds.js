@@ -5,7 +5,7 @@
  */
 const borrowerAddress = "0x0000000000000000000000000000000000000000"; // address of the borrower in string format
 const tokenKind = TokenKind.AXIE; // TokenKind.AXIE, TokenKind.AXIE_LAND
-const tokenIds = ["1", "2", "3"]; // token ids in string format which belong to the specified tokenKind
+const tokenIds = ["123", "1"]; // token ids in string format which belong to the specified tokenKind
 /////////////////////////////////////////////////////////////////////////////
 
 import {
@@ -14,15 +14,15 @@ import {
   getCollateralTokenAddressByTokenKind,
   sanitizeAddress,
   TokenKind,
-} from "./lib/utils";
+} from "./lib/utils.js";
 import { BigNumber } from "ethers";
-import { api } from "./api/api";
-import { getCollateralContractByTokenKind } from "./protocol/contract/collateralErc721";
-import { getActiveMarket } from "./protocol/contract/marketErc20";
-import { liquidityAssessorContract } from "./protocol/contract/liquidityAssessor";
-import { formatEther } from "ethers/lib/utils";
-import { wethContract } from "./protocol/contract/erc20";
-import { signer } from "./protocol/ethersManager";
+import { api } from "./api/api.js";
+import { getCollateralContractByTokenKind } from "./protocol/contract/collateralErc721.js";
+import { getActiveMarket } from "./protocol/contract/marketErc20.js";
+import { liquidityAssessorContract } from "./protocol/contract/liquidityAssessor.js";
+import { formatEther } from "ethers/lib/utils.js";
+import { wethContract } from "./protocol/contract/erc20.js";
+import { signer } from "./protocol/ethersManager.js";
 
 async function run() {
   /**
@@ -49,36 +49,47 @@ async function run() {
    * @notice first check if given borrower holds given token ids
    */
   const collateralContract = getCollateralContractByTokenKind[tokenKind];
-  const borrowerTokens = await collateralContract.getAccountTokens();
-  const allValuesIncluded = borrowerTokens.every((value) =>
-    bigNumberTokenIds.includes(value)
+  const borrowerTokens = await collateralContract.getAccountTokens(
+    addressBorrower
+  );
+  const borrowerTokensString = borrowerTokens.map(function (value) {
+    return value.toString();
+  });
+  const allValuesIncluded = bigNumberTokenIds.every((value) =>
+    borrowerTokensString.includes(value.toString())
   );
   if (!allValuesIncluded)
-    throw "Given address does not own given token ids for this token kind, please double check your input";
+    throw "Given address does not own given token ids for this token kind, please double check your input. It is possible the borrower repaid their loan and is no longer in shortfall. We update the request results each 30 minutes and plan to upgrade the interval";
 
   /**
    * @notice second calculate repay amount and check if liquidation is allowed to happen
    * with given parameters according to conditions described in readme
    */
   let totalValue = BigNumber.from("0");
-  for (const token in bigNumberTokenIds) {
+  for (let i = 0; i < bigNumberTokenIds.length; i++) {
+    const token = bigNumberTokenIds[i];
     totalValue = totalValue.add(
       getAppraisalForTokenId(appraisal, tokenKindAddress, token)
     );
   }
   const discount = BigNumber.from("900000000000000000"); // 0.9
   const ethMantissa = BigNumber.from("1000000000000000000"); // 1.0
-  repayAmount = totalValue.mul(discount).div(ethMantissa);
+  repayAmount = totalValue.mul(discount).div(ethMantissa).div(ethMantissa);
   const allowed = await liquidityAssessorContract.isLiquidationAllowed(
-    market.address,
+    market.contractReadonly.address,
     tokenKindAddress,
     addressBorrower,
     repayAmount,
     bigNumberTokenIds,
     appraisal
   );
-  if (!allowed)
-    throw "Liquidation is not allowed to happen with given parameters, please try again with different token ids";
+  if (Number(allowed.toString()) === 17) {
+    throw "Liquidating these token ids would overliquidate the borrower. Please choose fewer tokens. Double check the borrower's shortfall";
+  } else if (Number(allowed.toString()) === 3) {
+    throw "Borrower is no longer in shortfall. Please choose a different token ids and borrower";
+  } else if (Number(allowed.toString()) !== 0) {
+    throw "Liquidation is not allowed to happen with given parameters, unknown error, please try again with different token ids";
+  }
 
   /**
    * @notice third ask liquidator if they wanna proceed with given amount and token ids
@@ -92,7 +103,7 @@ async function run() {
   const balanceLiquidator = await wethContract.balanceOf(signer.address);
   if (balanceLiquidator.lt(repayAmount))
     throw "Your balance is not high enough to proceed with liquidation";
-  await wethContract.approve(market.address, repayAmount);
+  await wethContract.approve(market.contractReadonly.address, repayAmount);
 
   /**
    * @notice finally execute liquidation
@@ -127,7 +138,7 @@ async function run() {
    */
   await api.registerTransaction(txHash);
 
-  console.log("Success, tokens are now in your wallet")
+  console.log("Success, tokens are now in your wallet");
 }
 
 run().catch((error) => {

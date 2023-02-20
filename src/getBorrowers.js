@@ -28,7 +28,7 @@ async function run() {
 
   const res = transformShortfallValues(data)
   
-  console.log(red)
+  console.log(res)
   file.writeFile("listings/borrowers.json", JSON.stringify(res))
 
   console.log("Success, check /listings/borrowers.json")

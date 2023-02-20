@@ -7,7 +7,7 @@ import * as readline from "readline";
 
 /**
  * ensures address input is in correct format to operate with, otherwise throws
- * @param {string} address 
+ * @param {string} address
  * @returns address string
  */
 export function sanitizeAddress(address) {
@@ -39,9 +39,9 @@ export const getCollateralTokenAddressByTokenKind = {
 /**
  * @notice do not modify this function
  * @dev this returns value of given token id from appraisal struct
- * @param {appraisalStruct} appraisal 
+ * @param {appraisalStruct} appraisal
  * @param {string} tokenKind address
- * @param {BigNumber} tokenId 
+ * @param {BigNumber} tokenId
  * @returns value of token id in BigNumber format
  */
 export function getAppraisalForTokenId(appraisal, tokenKind, tokenId) {
@@ -53,14 +53,17 @@ export function getAppraisalForTokenId(appraisal, tokenKind, tokenId) {
     for (let j = 0; j < appraisal.appraisalLengths[i]; j++) {
       let tokenId_ = appraisal.appraisalTokenIds[cursor];
 
-      if (tokenId_ === tokenId.toString() && tokenKind_ === tokenKind) {
+      if (
+        tokenId_ === tokenId.toString() &&
+        tokenKind_ === tokenKind.toLowerCase()
+      ) {
         let e = appraisal.appraisalValues[cursor];
 
         return BigNumber.from(
           e.toLocaleString("fullwide", {
             useGrouping: false,
           })
-        ).div(ethers.BigNumber.from("1000000000000000000"));
+        );
       }
 
       cursor++;
@@ -73,7 +76,7 @@ export function getAppraisalForTokenId(appraisal, tokenKind, tokenId) {
 
 /**
  * @notice this serves to ask user for confirmation for given actions
- * @param {*} stringQuestion 
+ * @param {string} stringQuestion
  */
 export async function checkUserPermission(stringQuestion) {
   const rl = readline.createInterface({

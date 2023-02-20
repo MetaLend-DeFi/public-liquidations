@@ -1,5 +1,6 @@
 import axios from "axios";
 import dotenv from "dotenv";
+import { BigNumber } from "ethers";
 dotenv.config();
 
 /**
@@ -79,7 +80,19 @@ class Api {
    * @returns `appraisalStruct` for liquidation, this struct must be passed as parameter to function when interacting with contract
    */
   async getAppraisal(address) {
-    return await axiosApi.get(`/get-appraisal?address=${address}`);
+    const response = await axiosApi.get(`/get-appraisal?address=${address}`);
+    const appraisal = response.data;
+
+    appraisal.appraisalValues = appraisal.appraisalValues.map((e) =>
+      BigNumber.from(
+        e.toLocaleString("fullwide", {
+          useGrouping: false,
+        })
+      ).toString()
+    );
+  
+    appraisal.signature = `0x01${appraisal.signature.slice(2)}`;
+    return appraisal;
   }
 
   /**

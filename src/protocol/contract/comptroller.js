@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
 import { metalendComptrollerAddress } from "../../lib/constants.js";
-import { providerReadonly } from "../ethersManager.js";
+import { provider } from "../ethersManager.js";
 
 /**
  * @notice this class serves as a read only comptroller contract - manages the protocol
@@ -30,7 +30,7 @@ class Comptroller {
     this.contractReadonly = new ethers.Contract(
       metalendComptrollerAddress,
       abiReadonly,
-      providerReadonly
+      provider
     );
   }
 

@@ -6,8 +6,7 @@ dotenv.config();
  * @notice initialize ronin provider
  */
 export const provider = new ethers.providers.JsonRpcProvider(
-  process.env.RONIN_RPC_URL,
-  { chainId: process.env.RONIN_CHAIN_ID }
+  process.env.RONIN_RPC_URL
 );
 
 /**

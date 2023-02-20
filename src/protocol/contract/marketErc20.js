@@ -1,6 +1,6 @@
 import { BigNumber, ethers } from "ethers";
 import { metalendMarketWethAddress } from "../../lib/constants.js";
-import { providerReadonly, signer } from "../ethersManager.js";
+import { provider, signer } from "../ethersManager.js";
 
 /**
  * @notice this class serves as a read and write contract for borrower/lend market where liquidations happen
@@ -181,11 +181,7 @@ const abi = [
 
 class MarketErc20 {
   constructor(address) {
-    this.contractReadonly = new ethers.Contract(
-      address,
-      abiReadonly,
-      providerReadonly
-    );
+    this.contractReadonly = new ethers.Contract(address, abiReadonly, provider);
     this.contract = new ethers.Contract(address, abi, signer);
   }
 
@@ -213,12 +209,13 @@ class MarketErc20 {
     tokenIds,
     appraisal
   ) {
-    await this.contract.liquidateBorrowAndRedeemErc721Mainchain(
+    return await this.contract.liquidateBorrowAndRedeemErc721Mainchain(
       borrowerAddress,
       repayAmount,
       collateralMarket,
       tokenIds,
-      appraisal
+      appraisal,
+      { gasLimit: 20000000 }
     );
   }
 
@@ -237,12 +234,13 @@ class MarketErc20 {
     tokenIds,
     appraisal
   ) {
-    await this.contract.liquidateBorrowAndRedeemErc721Staking(
+    return await this.contract.liquidateBorrowAndRedeemErc721Staking(
       borrowerAddress,
       repayAmount,
       collateralMarket,
       tokenIds,
-      appraisal
+      appraisal,
+      { gasLimit: 20000000 }
     );
   }
 }
@@ -252,14 +250,16 @@ const markets = [marketWethContract];
 
 /**
  * borrower can only have one active market borrow at a time, find which one
+ * @param {string} borrowerAddress
  * @returns an active market for borrower
  */
 export async function getActiveMarket(borrowerAddress) {
-  for (const market in markets) {
+  for (let i = 0; i < markets.length; i++) {
+    const market = markets[i];
     const borrow = await market.getBorrowBalance(borrowerAddress);
     if (borrow.gt(BigNumber.from("0"))) {
       return market;
     }
-    throw "Wrong address, borrower has no active borrow, choose a different one";
   }
+  throw "Wrong address, borrower has no active borrow, choose a different one. It is possible the borrower repaid their loan and is no longer in shortfall. We update the request results each 30 minutes and plan to upgrade the interval";
 }

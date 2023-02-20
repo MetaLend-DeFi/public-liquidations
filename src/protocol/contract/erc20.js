@@ -107,7 +107,7 @@ class Erc20 {
    * @param {BigNumber} amount
    */
   async approve(spender, amount) {
-    await this.contract.approve(spender, amount);
+    await this.contract.approve(spender, amount, { gasLimit: 200000 });
   }
 
   /**
