@@ -1,13 +1,23 @@
 # MetaLend Public Liquidations
-This node project exposes liquidations to public. MetaLend protocol is forked Compound with addition of ERC721 tokens. Anyone can liquidate shortfall borrowers. However, liquidation function requires borrower's appraisal which is generated and signed by MetaLend backend. With this repository, API key and private key to your liquidator wallet, it's possible to get all requirements for public liquidations.
+The MetaLend protocol is a fork of the Compound Protocol with the addition of ERC721 tokens. This node project exposes liquidations to the public, anyone can use this project to liquidate shortfall borrowers. However, the liquidation function requires borrower's appraisals which is generated and signed by the MetaLend backend. 
+
+Liquidation Incentive - Shortfall NFTs are available to liquidators at a 10% discount to their appraised value. This is currently a global incentive across all ERC-721 assets, but we’ll be adding different discounts by asset soon.
+
+With this repository and an API key it's possible to get all the information needed to perform liquidations from your own liquidator wallet without sharing your private keys or signing external transactions.
 
 ## How liquidations work
-Liquidating borrower happens by interacting with market with active borrow. Each borrower can have only one active market at a time. Meaning as soon as USDC and RON markets are launched, borrower can choose any market they want to borrow from, but they cannot borrow from two markets at a time. Borrower can increase the borrow in their current market. As soon as they fully repay their loan they can pick a different market to borrow from.
+Liquidating a borrower happens by interacting with the market with their active borrow. Each borrower can have only one active market at a time. Meaning as soon as USDC and RON markets are launched, borrowers can choose any market they want to borrow from, but they cannot borrow from two markets at a time. Borrowers can increase or decrease their borrow in their current market. As soon as they fully repay their loan they can pick a different market to borrow from.
 
-During liquidation, liquidator repays in the same currency as borrower's active loan. It is possible to liquidate only one token kind (Axie, Axie Land) at a time in one transaction. It is possible to liquidate multiple token ids at once. At this point there is a global 10% discount from appraised value for liquidation of ERC721 assets, but we plan to introduce independent discounts for each collateral type. Borrower cannot be overliquidated, meaning if someone tries to liquidate more tokens than required the transaction gets reverted. This is done in linear order from left to right of the token ids array. The transaction is summing up the token values to liquidate and if there are still tokens left in the array when borrower is brought out of shortfall, the transaction fails. However, there is no block for total value of asset during liquidation. So it is possible to liquidate Axie Land even if borrower has small shortfall. The overpay during the liquidation is coverted to lending assets of the borrower.
+During liquidation, the liquidator must repay in the same currency as the borrower's active loan. We only allow liquidating one token kind (Axie, Axie Land) at a time per transaction, but it is possible to liquidate multiple token ids in a single transaction. 
+
+Borrowers cannot be over liquidated, meaning if someone tries to liquidate more tokens than required, the transaction gets reverted. Liquidations go in linear order from left to right of the token id array. The transaction sums up the token values to liquidate and if there are still tokens left in the array when the borrower is brought out of shortfall, the transaction fails. 
+
+However, there is no block for total value of assets during liquidation, so it is possible to liquidate a user’s highest value NFT even if the borrower is in shortfall by a small shortfall. 
+
+If a liquidation pays for the entirety of a borrower's loan, the overpaid amount is converted into lending pool assets for the borrower.
 
 ## Updates
-This repository will receive updates to contain new markets to liquidate from and new discounts. You can update with `git pull` or redownloading the repository/release. We will share updates on social media.
+This repository will receive updates to contain new markets to liquidate from and new discounts. You can update with `git pull` or by re-downloading the repository/release. We will share updates on social media.
 
 ## Setup
 * get `nodejs` - https://nodejs.org/en/download/
