@@ -11,13 +11,13 @@ import { file } from "./lib/fs.js";
 /**
  * 
  * @param {object} obj 
- * @returns borrowers with shortfall in ETH
+ * @returns borrowers with shortfall in WETH
  */
 function transformShortfallValues(obj) {
   const transformedObj = {};
   for (const key in obj) {
     if (obj.hasOwnProperty(key)) {
-      transformedObj[key] = `${formatEther(obj[key])} ETH`;
+      transformedObj[key] = `${formatEther(obj[key])} WETH`;
     }
   }
   return transformedObj;

@@ -98,7 +98,7 @@ async function run() {
    */
   const question = `Liquidation of token ids ${tokenIds} will cost you ${formatEther(
     repayAmount
-  )} ETH`;
+  )} WETH`;
   await checkUserPermission(question);
   const balanceLiquidator = await wethContract.balanceOf(signer.address);
   if (balanceLiquidator.lt(repayAmount))

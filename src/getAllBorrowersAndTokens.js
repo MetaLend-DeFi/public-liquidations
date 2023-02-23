@@ -3,7 +3,7 @@
  * @notice this script gets all addresses with their tokens and prices
  * it writes to a file in /listings directory in project root
  * @dev our appraisal is wei value scaled by e18, before writing the file
- * convert each token value value to ETH representation
+ * convert each token value value to WETH representation
  */
 /////////////////////////////////////////////////////////////////////////////
 
@@ -13,14 +13,14 @@ import { api } from "./api/api.js";
 import { file } from "./lib/fs.js";
 
 /**
- * this converts appraisal string to proper ETH representation
+ * this converts appraisal string to proper WETH representation
  * @param {string} value 
  * @returns string of token value
  */
 function transform(value) {
   let val = BigNumber.from(value);
   val = val.div(BigNumber.from("1000000000000000000"));
-  return `${formatEther(val)} ETH`;
+  return `${formatEther(val)} WETH`;
 }
 
 /**

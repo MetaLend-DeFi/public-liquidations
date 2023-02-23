@@ -1,6 +1,6 @@
 {
   "name": "metalend-public-liquidations",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Library for MetaLend public liquidations",
   "type": "module",
   "scripts": {
