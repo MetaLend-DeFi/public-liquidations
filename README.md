@@ -41,6 +41,7 @@ This repository will receive updates to contain new markets to liquidate from an
 ## Liquidation process
 * you can get all shortfall borrowers and their tokens with values by running
   * `npm run getTokens` or `node src/getAllBorrowersAndTokens.js` and checking newly created /listings directory `all.json` file
+  * you can use https://jsonformatter.curiousconcept.com/# to format the output
 * you can get the shortfall amount of each borrower by running
   * `npm run getBorrowers` or `node src/getBorrowers.js` and checking /listings directory `borrowers.json` file
   * this shortfall usually corresponds to how many assets can be liquidated from borrower if you go for low value Axies. If you liquidate high value asset it usually brings person out of shortfall at once.
